@@ -1,24 +1,30 @@
 #!/bin/bash
+echo Download the official etcd release binaries from the etcd GitHub project:
 wget -q --show-progress --https-only --timestamping \
   "https://github.com/etcd-io/etcd/releases/download/v3.4.10/etcd-v3.4.10-linux-amd64.tar.gz"
-  
-tar -xvf etcd-v3.4.10-linux-amd64.tar.gz
-sudo mv etcd-v3.4.10-linux-amd64/etcd* /usr/local/bin/
 
+echo Extract and install the etcd server and the etcdctl command line utility:
+{
+  tar -xvf etcd-v3.4.10-linux-amd64.tar.gz
+  sudo mv etcd-v3.4.10-linux-amd64/etcd* /usr/local/bin/
+}
 
-sudo mkdir -p /etc/etcd /var/lib/etcd
-sudo chmod 700 /var/lib/etcd
-sudo cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd/
-
+echo Configure the etcd Server:
+{
+  sudo mkdir -p /etc/etcd /var/lib/etcd
+  sudo chmod 700 /var/lib/etcd
+  sudo cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd/
+}
+echo The instance internal IP address will be used to serve client requests and communicate with etcd cluster peers. Retrieve the internal IP address the current compute instance:
 INTERNAL_IP=$(curl -s -H "Metadata-Flavor: Google" \
   http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip)
 
 echo $INTERNAL_IP
 
+echo ach etcd member must have a unique name within an etcd cluster. Set the etcd name to match the hostname of the current compute instance:
 ETCD_NAME=$(hostname -s)
-
 echo $ETCD_NAME
-
+echo Create the etcd.service systemd unit file:
 cat <<EOF | sudo tee /etc/systemd/system/etcd.service
 [Unit]
 Description=etcd
@@ -50,10 +56,12 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 EOF
-
-sudo systemctl daemon-reload
-sudo systemctl enable etcd
-sudo systemctl start etcd
+echo Start the etcd Server:
+{
+  sudo systemctl daemon-reload
+  sudo systemctl enable etcd
+  sudo systemctl start etcd
+}
 sudo ETCDCTL_API=3 etcdctl member list \
   --endpoints=https://127.0.0.1:2379 \
   --cacert=/etc/etcd/ca.pem \

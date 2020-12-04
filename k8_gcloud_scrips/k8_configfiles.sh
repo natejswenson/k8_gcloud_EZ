@@ -1,36 +1,15 @@
 #!/bin/bash
-sh ./k8cloud_networksetup.sh 
-sh ./k8cloud_controller.sh 
-sh ./k8cloud_worker.sh 
-sh ./ca_csr.sh 
-sh ./admin_csr.sh 
-sh ./k8_controller_manager_csr.sh 
+#Client Authentication Configs
+#K8 Public IP Address
 
-KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe kubernetes-the-hard-way \
+KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe k8-ez \
   --region $(gcloud config get-value compute/region) \
   --format 'value(address)')
 
-KUBERNETES_HOSTNAMES=kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local
-
-sh ./k8_csr.sh 
-sh ./serviceaccount_csr.sh  
-
-
+#Kubelet k8 config files
 for instance in worker-0 worker-1 worker-2; do
-  gcloud compute scp ca.pem ${instance}-key.pem ${instance}.pem ${instance}:~/
-done
-
-for instance in controller-0 controller-1 controller-2; do
-  gcloud compute scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
-    service-account-key.pem service-account.pem ${instance}:~/
-done
-
-KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe kubernetes-the-hard-way \
-  --region $(gcloud config get-value compute/region) \
-  --format 'value(address)')
-
-for instance in worker-0 worker-1 worker-2; do
-  kubectl config set-cluster kubernetes-the-hard-way \
+  echo generating kubeconfig file for ${instance}
+  kubectl config set-cluster k8-ez \
     --certificate-authority=ca.pem \
     --embed-certs=true \
     --server=https://${KUBERNETES_PUBLIC_ADDRESS}:6443 \
@@ -43,15 +22,17 @@ for instance in worker-0 worker-1 worker-2; do
     --kubeconfig=${instance}.kubeconfig
 
   kubectl config set-context default \
-    --cluster=kubernetes-the-hard-way \
+    --cluster=k8-ez \
     --user=system:node:${instance} \
     --kubeconfig=${instance}.kubeconfig
 
   kubectl config use-context default --kubeconfig=${instance}.kubeconfig
 done
 
+#kube-proxy Kubernetes Configuration File
+echo generating kubeconfig file kube-proxy
 {
-  kubectl config set-cluster kubernetes-the-hard-way \
+  kubectl config set-cluster k8_glcloud_EZ \
     --certificate-authority=ca.pem \
     --embed-certs=true \
     --server=https://${KUBERNETES_PUBLIC_ADDRESS}:6443 \
@@ -64,14 +45,16 @@ done
     --kubeconfig=kube-proxy.kubeconfig
 
   kubectl config set-context default \
-    --cluster=kubernetes-the-hard-way \
+    --cluster=k8-ez \
     --user=system:kube-proxy \
     --kubeconfig=kube-proxy.kubeconfig
 
   kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
 }
+#The kube-controller-manager Kubernetes Configuration File
+echo generating a kubeconfig file kube-controller-manager service
 {
-  kubectl config set-cluster kubernetes-the-hard-way \
+  kubectl config set-cluster k8-ez \
     --certificate-authority=ca.pem \
     --embed-certs=true \
     --server=https://127.0.0.1:6443 \
@@ -84,15 +67,16 @@ done
     --kubeconfig=kube-controller-manager.kubeconfig
 
   kubectl config set-context default \
-    --cluster=kubernetes-the-hard-way \
+    --cluster=k8-ez \
     --user=system:kube-controller-manager \
     --kubeconfig=kube-controller-manager.kubeconfig
 
   kubectl config use-context default --kubeconfig=kube-controller-manager.kubeconfig
 }
-
+#The kube-scheduler Kubernetes Configuration File
+echo generating a kubeconfig file (ube-scheduler service
 {
-  kubectl config set-cluster kubernetes-the-hard-way \
+  kubectl config set-cluster k8-ez \
     --certificate-authority=ca.pem \
     --embed-certs=true \
     --server=https://127.0.0.1:6443 \
@@ -105,15 +89,16 @@ done
     --kubeconfig=kube-scheduler.kubeconfig
 
   kubectl config set-context default \
-    --cluster=kubernetes-the-hard-way \
+    --cluster=k8-ez \
     --user=system:kube-scheduler \
     --kubeconfig=kube-scheduler.kubeconfig
 
   kubectl config use-context default --kubeconfig=kube-scheduler.kubeconfig
 }
-
+#The admin Kubernetes Configuration File
+echo generate a kube config file (admin user)
 {
-  kubectl config set-cluster kubernetes-the-hard-way \
+  kubectl config set-cluster k8-ez \
     --certificate-authority=ca.pem \
     --embed-certs=true \
     --server=https://127.0.0.1:6443 \
@@ -126,7 +111,7 @@ done
     --kubeconfig=admin.kubeconfig
 
   kubectl config set-context default \
-    --cluster=kubernetes-the-hard-way \
+    --cluster=k8-ez \
     --user=admin \
     --kubeconfig=admin.kubeconfig
 
@@ -134,32 +119,13 @@ done
 }
 
 for instance in worker-0 worker-1 worker-2; do
+  echo copy kublet and kube-proxy to ${instance}
   gcloud compute scp ${instance}.kubeconfig kube-proxy.kubeconfig ${instance}:~/
 done
 
 for instance in controller-0 controller-1 controller-2; do
+  echo copy kkube-controller and kube scheduler to ${instance}
   gcloud compute scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig ${instance}:~/
 done
 
-ENCRYPTION_KEY=$(head -c 32 /dev/urandom | base64)
-
-cat > encryption-config.yaml <<EOF
-kind: EncryptionConfig
-apiVersion: v1
-resources:
-  - resources:
-      - secrets
-    providers:
-      - aescbc:
-          keys:
-            - name: key1
-              secret: ${ENCRYPTION_KEY}
-      - identity: {}
-EOF
-
-for instance in controller-0 controller-1 controller-2; do
-  gcloud compute scp k8cloud_bootstrapetcd.sh encryption-config.yaml  ${instance}:~/
-  gcloud compute ssh ${instance} --command="./k8cloud_bootstrapetcd.sh "
-done
-
-exit 0
+return 0
