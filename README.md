@@ -23,7 +23,7 @@ NAME          ZONE        MACHINE_TYPE   PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP  
 controller-0  us-west1-c  e2-standard-2               10.240.0.10  x.x.x.x.x       RUNNING
 controller-1  us-west1-c  e2-standard-2               10.240.0.11  x.x.x.x.x       RUNNING
 controller-2  us-west1-c  e2-standard-2               10.240.0.12  x.x.x.x.x       RUNNING
-worker-0      us-west1-c  e2-standard-2               10.240.0.20  34.83.74.23     RUNNING
+worker-0      us-west1-c  e2-standard-2               10.240.0.20  x.x.x.x.x       RUNNING
 worker-1      us-west1-c  e2-standard-2               10.240.0.21  x.x.x.x.x       STAGING
 ```
 
