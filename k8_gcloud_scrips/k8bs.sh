@@ -1,30 +1,30 @@
 #!/bin/bash
-echo Download the official etcd release binaries from the etcd GitHub project:
+echo $green Download the official etcd release binaries from the etcd GitHub project: $white
 wget -q --show-progress --https-only --timestamping \
   "https://github.com/etcd-io/etcd/releases/download/v3.4.10/etcd-v3.4.10-linux-amd64.tar.gz"
 
-echo Extract and install the etcd server and the etcdctl command line utility:
+echo $green Extract and install the etcd server and the etcdctl command line utility: $white
 {
   tar -xvf etcd-v3.4.10-linux-amd64.tar.gz
   sudo mv etcd-v3.4.10-linux-amd64/etcd* /usr/local/bin/
 }
 
-echo Configure the etcd Server:
+echo $red Configure the etcd Server: $white
 {
   sudo mkdir -p /etc/etcd /var/lib/etcd
   sudo chmod 700 /var/lib/etcd
   sudo cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd/
 }
-echo The instance internal IP address will be used to serve client requests and communicate with etcd cluster peers. Retrieve the internal IP address the current compute instance:
+echo $blue The instance internal IP address will be used to serve client requests and communicate with etcd cluster peers. Retrieve the internal IP address the current compute instance: $white
 INTERNAL_IP=$(curl -s -H "Metadata-Flavor: Google" \
   http://metadata.google.internal/computeMetadata/v1/instance/network-interfaces/0/ip)
 
-echo $INTERNAL_IP
+echo $blue ${INTERNAL_IP}
 
-echo ach etcd member must have a unique name within an etcd cluster. Set the etcd name to match the hostname of the current compute instance:
+echo $blue each etcd member must have a unique name within an etcd cluster. Set the etcd name to match the hostname of the current compute instance: $white
 ETCD_NAME=$(hostname -s)
-echo $ETCD_NAME
-echo Create the etcd.service systemd unit file:
+echo $blue ${ETCD_NAME}
+echo $green Create the etcd.service systemd unit file: $white
 cat <<EOF | sudo tee /etc/systemd/system/etcd.service
 [Unit]
 Description=etcd
@@ -56,7 +56,7 @@ RestartSec=5
 [Install]
 WantedBy=multi-user.target
 EOF
-echo Start the etcd Server:
+echo $green Start the etcd Server: $white
 {
   sudo systemctl daemon-reload
   sudo systemctl enable etcd

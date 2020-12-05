@@ -1,6 +1,6 @@
 #!/bin/bash
 #Encryption Config File
-echo creating the encyption-config.yaml encyption File
+echo $red creating the encyption-config.yaml encyption File $white
 
 ENCRYPTION_KEY=$(head -c 32 /dev/urandom | base64)
 
@@ -19,11 +19,12 @@ resources:
 EOF
 
 for instance in controller-0 controller-1 controller-2; do
-    echo copy the encyption-config.yaml to ${instance}
+    echo $green copy files to ${instance} $white
     gcloud compute scp encryption-config.yaml ${instance}:~/
-    echo copy the bootstrap.sh to ${instance}
     gcloud compute scp ~/k8/k8scrips/k8_gcloud_scrips/k8bs.sh ${instance}:~/
+    gcloud compute scp ~/k8/k8scrips/k8_gcloud_scrips/controlplan.sh ${instance}:~/
 done
-
+echo $green copy rbac.sh to controller-0: $white
+gcloud  compute scp ~/k8/k8scrips/k8_gcloud_scrips/rbac.sh controller-0:~/
 return 0
  

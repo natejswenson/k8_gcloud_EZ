@@ -1,6 +1,6 @@
 #!/bin/bash
 #Certificate Authority
-echo Generating the CA config file, cert, and private key
+echo $blue Generating the CA config file, cert, and private key $white
 {
 
 cat > ca-config.json <<EOF
@@ -42,7 +42,7 @@ cfssl gencert -initca ca-csr.json | cfssljson -bare ca
 }
 
 #Admin Client Cert
-echo Creating Admin Client Cert
+echo $blue Creating Admin Client Cert $white
 {
 
 cat > admin-csr.json <<EOF
@@ -75,7 +75,7 @@ cfssl gencert \
 # Kubelet Client Cert
 
 for instance in worker-0 worker-1 worker-2; do
-echo generating cert and public key for ${instance}
+echo $blue generating cert and public key $red ${instance}: $white
 cat > ${instance}-csr.json<<EOF
 {
   "CN": "system:node:${instance}",
@@ -111,7 +111,7 @@ cfssl gencert \
 done
 
 #Controller Manager Client Cert
-echo generating the kube-control-manager client cert and private key
+echo $blue generating the kube-control-manager client cert and private key $white
 {
 cat > kube-controller-manager-csr.json <<EOF
 {
@@ -141,7 +141,7 @@ cfssl gencert \
 
 }
 #Kube Proxy Client Cert
-echo Generating the kube-proxy client cert and private key
+echo $blue Generating the kube-proxy client cert and private key $white
 {
 
 cat > kube-proxy-csr.json <<EOF
@@ -172,7 +172,7 @@ cfssl gencert \
 
 }
 #The Scheduler Client
-echo Generating the kube-scheduler client cert and private key
+echo $blue Generating the kube-scheduler client cert and private key $white
 {
 
 cat > kube-scheduler-csr.json <<EOF
@@ -203,7 +203,7 @@ cfssl gencert \
 
 }
 #Kube API Server Cert
-echo generate the k8 API server cert and private key
+echo $blue generate the k8 API server cert and private key $white
 {
 
 KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe k8-ez \
@@ -241,7 +241,7 @@ cfssl gencert \
 
 }
 #Service Account Key Pair
-echo Generate the service-account cert and privatekey
+echo $blue Generate the service-account cert and privatekey $white
 {
 cat > service-account-csr.json <<EOF
 {
@@ -273,12 +273,12 @@ cfssl gencert \
 #distribute keys and certs
 
 for instance in worker-0 worker-1 worker-2; do
-  echo distributing certs to ${instance}
+  echo $blue distributing certs to $red ${instance} $white
   gcloud compute scp ca.pem ${instance}-key.pem ${instance}.pem ${instance}:~/
 done
 
 for instance in controller-0 controller-1 controller-2; do
-  echo distributing keys for ${instance}
+  echo $blue distributing keys to $red ${instance} $white
   gcloud compute scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
     service-account-key.pem service-account.pem ${instance}:~/
 done

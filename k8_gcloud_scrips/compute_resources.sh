@@ -1,6 +1,6 @@
 #!/bin/bash
-echo Provisioning Compute Resources
-echo Creating Virtual Private Cloud Network
+echo $green Provisioning Compute Resources
+echo $green Creating Virtual Private Cloud Network $white
 #Create Virtual Private Cloud Netsork
 gcloud compute networks create k8-ez --subnet-mode custom
 
@@ -8,7 +8,7 @@ gcloud compute networks subnets create kubernetes \
   --network k8-ez \
   --range 10.240.0.0/24
 
-echo Creating Firewall Rules
+echo $green Creating Firewall Rules $white
 #Create a firewall ru-le that allows internal communication across all protocols:
 gcloud compute firewall-rules create k8-ez-allow-internal \
 --allow tcp,udp,icmp \
@@ -20,20 +20,20 @@ gcloud compute firewall-rules create k8-ez-allow-external \
 --network k8-ez \
 --source-ranges 0.0.0.0/0
 
-echo You have created the following firewall rules
+echo $green You have created the following firewall rules: $white
 gcloud compute firewall-rules list --filter="network:k8-ez"
 
 #Set (Allocate) Public IP Address
-echo Allocating static IP address
+echo $green Allocating static IP address $white
 gcloud compute addresses create k8-ez \
 --region $(gcloud config get-value compute/region)
 
-echo your Public IP address is:
+echo $green your Public IP address is: $white
 gcloud compute addresses list --filter="name=('k8-ez')"
 
 #Setting up Compute Instances
 for i in 0 1 2; do
-  echo working on creating controller-${i}
+  echo $green working on creating controller-${i} $white
   gcloud compute instances create controller-${i} \
     --async \
     --boot-disk-size 200GB \
@@ -49,7 +49,7 @@ done
 
 #Setting up k8 workers
 for i in 0 1 2; do
-  echo working on creating worker-${i}
+  echo $green working on creating worker-${i} $white
   gcloud compute instances create worker-${i} \
     --async \
     --boot-disk-size 200GB \
@@ -63,7 +63,7 @@ for i in 0 1 2; do
     --subnet kubernetes \
     --tags k8-ez,worker
  #verification
- echo the following resources have been created:
+ echo $green the following resources have been created: $white
 gcloud compute instances list --filter="tags.items=k8-ez"
 done
 

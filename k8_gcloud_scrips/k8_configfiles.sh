@@ -8,7 +8,7 @@ KUBERNETES_PUBLIC_ADDRESS=$(gcloud compute addresses describe k8-ez \
 
 #Kubelet k8 config files
 for instance in worker-0 worker-1 worker-2; do
-  echo generating kubeconfig file for ${instance}
+  echo $green generating kubeconfig file $blue ${instance} $white
   kubectl config set-cluster k8-ez \
     --certificate-authority=ca.pem \
     --embed-certs=true \
@@ -30,7 +30,7 @@ for instance in worker-0 worker-1 worker-2; do
 done
 
 #kube-proxy Kubernetes Configuration File
-echo generating kubeconfig file kube-proxy
+echo $green generating kubeconfig file kube-proxy $white
 {
   kubectl config set-cluster k8_glcloud_EZ \
     --certificate-authority=ca.pem \
@@ -52,7 +52,7 @@ echo generating kubeconfig file kube-proxy
   kubectl config use-context default --kubeconfig=kube-proxy.kubeconfig
 }
 #The kube-controller-manager Kubernetes Configuration File
-echo generating a kubeconfig file kube-controller-manager service
+echo $green generating a kubeconfig file kube-controller-manager service $white
 {
   kubectl config set-cluster k8-ez \
     --certificate-authority=ca.pem \
@@ -74,7 +74,7 @@ echo generating a kubeconfig file kube-controller-manager service
   kubectl config use-context default --kubeconfig=kube-controller-manager.kubeconfig
 }
 #The kube-scheduler Kubernetes Configuration File
-echo generating a kubeconfig file (ube-scheduler service
+echo $green generating a kubeconfig file kube-scheduler service $white
 {
   kubectl config set-cluster k8-ez \
     --certificate-authority=ca.pem \
@@ -96,7 +96,7 @@ echo generating a kubeconfig file (ube-scheduler service
   kubectl config use-context default --kubeconfig=kube-scheduler.kubeconfig
 }
 #The admin Kubernetes Configuration File
-echo generate a kube config file (admin user)
+echo $green generate a kube config file admin user $white
 {
   kubectl config set-cluster k8-ez \
     --certificate-authority=ca.pem \
@@ -119,12 +119,12 @@ echo generate a kube config file (admin user)
 }
 
 for instance in worker-0 worker-1 worker-2; do
-  echo copy kublet and kube-proxy to ${instance}
+  echo $blue copy kublet and kube-proxy to ${instance} $white
   gcloud compute scp ${instance}.kubeconfig kube-proxy.kubeconfig ${instance}:~/
 done
 
 for instance in controller-0 controller-1 controller-2; do
-  echo copy kkube-controller and kube scheduler to ${instance}
+  echo $blue copy kkube-controller and kube scheduler to ${instance} $white
   gcloud compute scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig ${instance}:~/
 done
 
