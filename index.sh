@@ -11,11 +11,8 @@ sh ./k8_gcloud_scrips/k8_configfiles.sh
 sh ./k8_gcloud_scrips/encryption_config.sh 
 sh ./k8_gcloud_scrips/bs.sh 
 sh ./k8_gcloud_scrips/loadbalance.sh 
-for instance in controller-0 controller-1 controller-2; do
-    echo $red bootsrapping kubernetes worker: ${instance} $white
-    gcloud compute ssh ${instance} --command="./k8_gcloud_scrips/workernode.sh "
-done
-
-
-
+sh ./k8_gcloud_scrips/worker.sh 
+sh ./k8_gcloud_scrips/admin.sh 
+sh ./k8_gcloud_scrips/networkpod_routes.sh 
+sh ./k8_gcloud_scrips/dns.sh 
 exit 

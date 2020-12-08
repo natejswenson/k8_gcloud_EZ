@@ -21,10 +21,14 @@ EOF
 for instance in controller-0 controller-1 controller-2; do
     echo $green copy files to ${instance} $white
     gcloud compute scp encryption-config.yaml ${instance}:~/
-    gcloud compute scp ~/k8/k8scrips/k8_gcloud_scrips/k8bs.sh ${instance}:~/
-    gcloud compute scp ~/k8/k8scrips/k8_gcloud_scrips/controlplan.sh ${instance}:~/
+    gcloud compute scp ~/k8/k8scrips/k8_gcloud_scrips/comput_server_scrips/k8bs.sh ${instance}:~/
+    gcloud compute scp ~/k8/k8scrips/k8_gcloud_scrips/comput_server_scrips/controlplan.sh ${instance}:~/
+done
+for instance in worker-0 worker-1 worker-2; do
+    echo $green copy files to ${instance} $white
+    gcloud compute scp ~/k8/k8scrips/k8_gcloud_scrips/comput_server_scrips/workernode.sh ${instance}:~/
 done
 echo $green copy rbac.sh to controller-0: $white
-gcloud  compute scp ~/k8/k8scrips/k8_gcloud_scrips/rbac.sh controller-0:~/
+gcloud  compute scp ~/k8/k8scrips/k8_gcloud_scrips/comput_server_scrips/rbac.sh controller-0:~/
 return 0
  

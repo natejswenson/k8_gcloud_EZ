@@ -20,6 +20,12 @@
   gcloud compute target-pools add-instances kubernetes-target-pool \
    --instances controller-0,controller-1,controller-2
 
+gcloud compute forwarding-rules create kubernetes-forwarding-rule \
+    --address ${KUBERNETES_PUBLIC_ADDRESS} \
+    --ports 3000 \
+    --region $(gcloud config get-value compute/region) \
+    --target-pool kubernetes-target-pool
+    
   gcloud compute forwarding-rules create kubernetes-forwarding-rule \
     --address ${KUBERNETES_PUBLIC_ADDRESS} \
     --ports 6443 \

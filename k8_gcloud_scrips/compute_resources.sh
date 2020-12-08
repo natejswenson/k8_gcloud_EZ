@@ -16,7 +16,7 @@ gcloud compute firewall-rules create k8-ez-allow-internal \
 --source-ranges 10.240.0.0/24,10.200.0.0/16
 #Create a firewall rule that allows external SSH, ICMP, and HTTPS
 gcloud compute firewall-rules create k8-ez-allow-external \
---allow tcp:22,tcp:6443,icmp \
+--allow tcp:22,tcp:6443,tcp:3000,icmp \
 --network k8-ez \
 --source-ranges 0.0.0.0/0
 
